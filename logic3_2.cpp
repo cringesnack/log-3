@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,17 +7,16 @@
 struct node
 {
     char data[256];
-    int priority;
     struct node* next;
 };
 
 struct node* head = NULL;
+struct node* tail = NULL;
 
 
 void addElement()
 {
     struct node* newNode;
-    struct node* current;
 
     newNode = (struct node*)malloc(sizeof(struct node));
 
@@ -30,28 +29,17 @@ void addElement()
     printf("Enter element: ");
     scanf("%255s", newNode->data);
 
-    printf("Enter priority: ");
-    scanf("%d", &newNode->priority);
-
     newNode->next = NULL;
 
-    if (head == NULL || newNode->priority > head->priority)
+    if (head == NULL)
     {
-        newNode->next = head;
         head = newNode;
+        tail = newNode;
     }
     else
     {
-        current = head;
-
-        while (current->next != NULL &&
-            current->next->priority >= newNode->priority)
-        {
-            current = current->next;
-        }
-
-        newNode->next = current->next;
-        current->next = newNode;
+        tail->next = newNode;
+        tail = newNode;
     }
 
     printf("Element added successfully.\n");
@@ -89,11 +77,65 @@ void deleteElements()
         removed++;
     }
 
+    if (head == NULL)
+    {
+        tail = NULL;
+    }
+
     printf("%d element(s) deleted.\n", removed);
 }
 
+void moveElementToEnd()
+{
+    char name[256];
+    struct node* current = head;
+    struct node* previous = NULL;
 
-/* Display the list */
+    if (head == NULL)
+    {
+        printf("List is empty.\n");
+        return;
+    }
+
+    printf("Enter element name: ");
+    scanf("%255s", name);
+
+    while (current != NULL &&
+        strcmp(current->data, name) != 0)
+    {
+        previous = current;
+        current = current->next;
+    }
+
+    if (current == NULL)
+    {
+        printf("Element not found.\n");
+        return;
+    }
+
+    if (current == tail)
+    {
+        printf("Element is already at the end.\n");
+        return;
+    }
+
+    if (previous == NULL)
+    {
+        head = current->next;
+    }
+    else
+    {
+        previous->next = current->next;
+    }
+
+
+    tail->next = current;
+    current->next = NULL;
+    tail = current;
+
+    printf("Element moved to the end successfully.\n");
+}
+
 void displayList()
 {
     struct node* current = head;
@@ -108,10 +150,7 @@ void displayList()
 
     while (current != NULL)
     {
-        printf("Element: %s | Priority: %d\n",
-            current->data,
-            current->priority);
-
+        printf("Element: %s\n", current->data);
         current = current->next;
     }
 }
@@ -127,6 +166,8 @@ void freeList()
         head = head->next;
         free(temp);
     }
+
+    tail = NULL;
 }
 
 
@@ -136,13 +177,13 @@ int main()
 
     do
     {
-
         printf("\n");
-        printf("=========================\n");
+        printf("==========================\n");
         printf("1. Add element\n");
         printf("2. Delete elements\n");
         printf("3. Display list\n");
         printf("4. Exit\n");
+        printf("5. Move element to end\n");
         printf("===========================\n");
         printf("Choose an option: ");
 
@@ -165,6 +206,10 @@ int main()
         case 4:
             freeList();
             printf("Program finished.\n");
+            break;
+
+        case 5:
+            moveElementToEnd();
             break;
 
         default:
